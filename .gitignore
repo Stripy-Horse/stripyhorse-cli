@@ -1,0 +1,5 @@
+/stripyhorse
+/stripyhorse-cli
+/dist/
+*.png
+*.zpl
