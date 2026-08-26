@@ -21,8 +21,9 @@ var commands = []command{
 	{"login", "Save your API key", cmdLogin},
 	{"convert", "Convert a PDF or image file to ZPL", cmdConvert},
 	{"render", "Render ZPL to a PNG", cmdRender},
+	{"view", "Render ZPL and show it inline in the terminal", cmdView},
 	{"printers", "Manage virtual printers (list|create|delete)", cmdPrinters},
-	{"print", "Send ZPL to one of your virtual printers", cmdPrint},
+	{"print", "Send ZPL to a real printer (IP) or a virtual one (prt_…)", cmdPrint},
 	{"tail", "Stream a printer's job events live", cmdTail},
 	{"version", "Print the CLI version", cmdVersion},
 }

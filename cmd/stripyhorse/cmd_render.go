@@ -2,9 +2,6 @@ package main
 
 import (
 	"flag"
-	"strings"
-
-	stripyhorse "github.com/Stripy-Horse/stripyhorse-go"
 )
 
 func cmdRender(cfg *Config, args []string) error {
@@ -18,21 +15,9 @@ func cmdRender(cfg *Config, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	client, ctx, err := cfg.apiClient()
+	png, err := cfg.renderPNG(string(zpl), *preset, *dpmm)
 	if err != nil {
 		return err
 	}
-	body := stripyhorse.NewRenderInputBody(strings.TrimSpace(string(zpl)))
-	if *preset != "" {
-		body.SetPreset(*preset)
-	}
-	if *dpmm > 0 {
-		body.SetDpmm(int64(*dpmm))
-	}
-	png, _, err := client.RenderAPI.RenderZplPng(ctx).RenderInputBody(*body).Execute()
-	if err != nil {
-		return apiError(err)
-	}
-	return writeOut(*out, []byte(png))
+	return writeOut(*out, png)
 }

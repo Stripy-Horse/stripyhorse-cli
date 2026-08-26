@@ -71,6 +71,7 @@ export STRIPYHORSE_API_KEY=sh_live_xxxxxxxxxxxx
 | `stripyhorse login` | Save your API key |
 | `stripyhorse convert <file> [-o out.zpl]` | Convert a PDF or image to ZPL |
 | `stripyhorse render [file] [-o out.png]` | Render ZPL (file or stdin) to a PNG |
+| `stripyhorse view [file]` | Render ZPL and show it inline in the terminal |
 | `stripyhorse printers list` | List your virtual printers |
 | `stripyhorse printers create [flags]` | Create a virtual printer |
 | `stripyhorse printers delete <id>` | Delete a printer |
@@ -88,6 +89,19 @@ stripyhorse convert invoice.pdf -o label.zpl --preset 4x6
 stripyhorse render label.zpl -o preview.png
 cat label.zpl | stripyhorse render -o preview.png
 ```
+
+### View a label right in the terminal
+
+```sh
+stripyhorse view label.zpl
+cat label.zpl | stripyhorse view
+```
+
+Renders the ZPL and shows the label **inline** using your terminal's graphics
+protocol — Kitty, Ghostty, iTerm2, and WezTerm display a real image; any other
+truecolor terminal gets a unicode half-block rendering. Piped into another
+command it emits the raw PNG instead, so `stripyhorse view label.zpl > out.png`
+still works.
 
 ### Virtual printers
 
