@@ -10,7 +10,7 @@ statically-linked client over the `/v1` API, built on the generated Go SDK
 ([`stripyhorse-go`](https://github.com/Stripy-Horse/stripyhorse-go)).
 
 ```sh
-stripyhorse convert invoice.pdf | stripyhorse print --printer prt_x9k2
+stripyhorse convert invoice.pdf | stripyhorse print 192.168.1.50
 ```
 
 ---
@@ -74,7 +74,7 @@ export STRIPYHORSE_API_KEY=sh_live_xxxxxxxxxxxx
 | `stripyhorse printers list` | List your virtual printers |
 | `stripyhorse printers create [flags]` | Create a virtual printer |
 | `stripyhorse printers delete <id>` | Delete a printer |
-| `stripyhorse print [file] --printer <id>` | Send ZPL to a printer |
+| `stripyhorse print <ip\|prt_id> [file]` | Send ZPL to a real printer (raw TCP) or a virtual one |
 | `stripyhorse tail <id>` | Stream a printer's job events live |
 | `stripyhorse version` | Print the CLI version |
 
@@ -102,17 +102,32 @@ stripyhorse printers delete prt_x9k2
 `--anonymize` masks PII and strips graphics from every captured job before it's
 stored.
 
-### Print & tail
+### Print
+
+`stripyhorse print` sends ZPL to a target — the target decides where it goes.
+The ZPL comes from a trailing file argument, or from stdin.
 
 ```sh
-# Send ZPL to a printer you created with this CLI (uses its cached ingest URL)
-stripyhorse print --printer prt_x9k2 label.zpl
-cat label.zpl | stripyhorse print --printer prt_x9k2
+# A REAL Zebra printer on your network — raw TCP to port 9100, no cloud round-trip
+stripyhorse print 192.168.1.50 label.zpl
+cat label.zpl | stripyhorse print 192.168.1.50
+stripyhorse print 192.168.1.50:9100 label.zpl      # explicit port
 
-# Or point at any ingest URL directly
+# One of YOUR virtual printers (via its cached ingest URL)
+stripyhorse print prt_x9k2 label.zpl
+
+# Or an ingest URL directly
 stripyhorse print --ingest-url https://api.stripyhorse.io/ingest/pit_… label.zpl
+```
 
-# Watch jobs arrive in real time (Server-Sent Events)
+Printing to a real printer is pure client-side raw TCP — it needs no API key
+and never leaves your network. A `prt_…` target routes through the API to your
+hosted virtual printer instead.
+
+### Tail
+
+```sh
+# Watch a virtual printer's jobs arrive in real time (Server-Sent Events)
 stripyhorse tail prt_x9k2
 ```
 
@@ -145,9 +160,10 @@ so `print` relies on that cache. Point at a self-hosted instance with
 ## How it works
 
 `convert`, `render`, and `printers` call the typed `/v1` operations via the
-generated Go SDK. `print` and `tail` use plain HTTP: ingest is a capability URL
-(the token is the auth) and the event stream is Server-Sent Events — neither is
-part of the OpenAPI surface.
+generated Go SDK. `print` to a real printer is direct raw TCP to port 9100 (no
+API involved); `print` to a virtual printer and `tail` use plain HTTP — ingest
+is a capability URL (the token is the auth) and the event stream is Server-Sent
+Events, neither of which is part of the OpenAPI surface.
 
 ## Development
 
