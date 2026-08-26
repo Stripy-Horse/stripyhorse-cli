@@ -1,0 +1,48 @@
+name: Release
+
+# Cut a release by pushing a tag:
+#   git tag v0.2.0 && git push origin v0.2.0
+# Publishes cross-platform binaries + checksums to a GitHub release, and (when
+# HOMEBREW_TAP_TOKEN is set) updates the Homebrew formula.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # The CLI imports the private module github.com/Stripy-Horse/stripyhorse-go.
+      # GH_MODULE_TOKEN is a PAT with read access to that repo; without it the
+      # build can't fetch the binding. (Drop this step once both repos go public.)
+      - name: Configure access to private Go modules
+        env:
+          GH_MODULE_TOKEN: ${{ secrets.GH_MODULE_TOKEN }}
+        run: |
+          if [ -n "$GH_MODULE_TOKEN" ]; then
+            git config --global url."https://x-access-token:${GH_MODULE_TOKEN}@github.com/".insteadOf "https://github.com/"
+            echo "GOPRIVATE=github.com/Stripy-Horse" >> "$GITHUB_ENV"
+          else
+            echo "::warning::GH_MODULE_TOKEN not set — the build will fail if stripyhorse-go is still private."
+          fi
+
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Set-but-empty when the secret is absent, so the Homebrew step skips
+          # cleanly instead of erroring on a missing template variable.
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}

@@ -1,6 +1,8 @@
 # GoReleaser config for the stripyhorse CLI. Cross-compiles a static binary
-# for every OS and (later) publishes archives + a Homebrew tap.
-#   goreleaser release --clean
+# for every OS, publishes archives + checksums to a GitHub release, and updates
+# a Homebrew formula. Run by .github/workflows/release.yml on a v* tag; locally:
+#   goreleaser release --clean            # real release
+#   goreleaser build --snapshot --clean   # just build, no publish
 version: 2
 
 project_name: stripyhorse
@@ -11,16 +13,17 @@ builds:
     main: ./cmd/stripyhorse
     env: [CGO_ENABLED=0]
     ldflags:
-      - -s -w -X main.version={{.Version}}
+      - -s -w -X main.version={{ .Version }}
     goos: [linux, darwin, windows]
     goarch: [amd64, arm64]
 
 archives:
   - id: stripyhorse
     name_template: "stripyhorse_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [zip]
 
 checksum:
   name_template: "checksums.txt"
@@ -30,10 +33,24 @@ release:
     owner: Stripy-Horse
     name: stripyhorse-cli
 
-# Uncomment once a Stripy-Horse/homebrew-tap repo exists:
-# brews:
-#   - repository:
-#       owner: Stripy-Horse
-#       name: homebrew-tap
-#     homepage: https://stripyhorse.io
-#     description: Command-line client for the Stripy Horse API
+# The Homebrew formula auto-publishes to Stripy-Horse/homebrew-tap when the
+# HOMEBREW_TAP_TOKEN secret is set; without it the step is skipped, so the very
+# first release still succeeds (binaries only). Create the tap repo + token to
+# turn it on — then `brew install stripy-horse/tap/stripyhorse`.
+homebrew_casks:
+  - name: stripyhorse
+    repository:
+      owner: Stripy-Horse
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: https://stripyhorse.io
+    description: "Command-line client for the Stripy Horse API — ZPL, tamed."
+    skip_upload: '{{ if .Env.HOMEBREW_TAP_TOKEN }}false{{ else }}true{{ end }}'
+    # Strip the quarantine attribute so an unsigned binary runs without a
+    # Gatekeeper prompt on first launch.
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/stripyhorse"]
+          end
