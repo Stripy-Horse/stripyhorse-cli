@@ -7,14 +7,18 @@ import (
 	"path/filepath"
 )
 
-const defaultBaseURL = "https://api.stripyhorse.io"
+const (
+	defaultBaseURL = "https://api.stripyhorse.io"
+	defaultWebURL  = "https://stripyhorse.io"
+)
 
-// Config is the on-disk CLI state: the API key, the API base URL, and the
+// Config is the on-disk CLI state: the API key, the API/web base URLs, and the
 // ingest URLs of printers this CLI created (the ingest token is only ever
 // returned once, at creation, so `print` relies on this cache).
 type Config struct {
 	APIKey  string            `json:"apiKey,omitempty"`
 	BaseURL string            `json:"baseUrl,omitempty"`
+	WebURL  string            `json:"webUrl,omitempty"`
 	Ingest  map[string]string `json:"ingest,omitempty"` // printerID -> ingest URL
 }
 
@@ -78,4 +82,16 @@ func (c *Config) baseURL() string {
 		return c.BaseURL
 	}
 	return defaultBaseURL
+}
+
+// webURL resolves the website base URL, where browser login and the OAuth
+// session cookie live (distinct from the API host).
+func (c *Config) webURL() string {
+	if u := os.Getenv("STRIPYHORSE_WEB_URL"); u != "" {
+		return u
+	}
+	if c.WebURL != "" {
+		return c.WebURL
+	}
+	return defaultWebURL
 }

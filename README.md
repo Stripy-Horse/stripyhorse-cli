@@ -50,16 +50,20 @@ stripyhorse version
 
 ## Authenticate
 
-Get an API key from your [account page](https://stripyhorse.io/account), then:
-
 ```sh
-stripyhorse login          # prompts for the key, saves it to your config
+stripyhorse login          # opens your browser to sign in (recommended)
 ```
 
-Or non-interactively / in CI:
+`login` starts a tiny local listener, opens the browser to
+[stripyhorse.io](https://stripyhorse.io), and — once you approve — captures a
+freshly-minted API key named after your machine (revocable any time on your
+account page). `--no-browser` prints the URL to open manually.
+
+Prefer a key you already have, or running headless/CI:
 
 ```sh
-export STRIPYHORSE_API_KEY=sh_live_xxxxxxxxxxxx
+stripyhorse login --key sh_live_xxxxxxxxxxxx    # paste a key
+export STRIPYHORSE_API_KEY=sh_live_xxxxxxxxxxxx  # or set it in the environment
 ```
 
 ---
@@ -162,6 +166,7 @@ stripyhorse convert label.pdf | stripyhorse print --printer "$CI_PRINTER"
 |---------|---------|---------|
 | `STRIPYHORSE_API_KEY` | API key (overrides the saved one) | — |
 | `STRIPYHORSE_API_URL` | API base URL | `https://api.stripyhorse.io` |
+| `STRIPYHORSE_WEB_URL` | Website URL used for browser login | `https://stripyhorse.io` |
 
 Config is stored at `${XDG_CONFIG_HOME:-~/.config}/stripyhorse/config.json`
 (`%AppData%\stripyhorse\` on Windows). It holds your key and the ingest URLs of
