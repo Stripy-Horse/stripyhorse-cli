@@ -18,7 +18,8 @@ type command struct {
 }
 
 var commands = []command{
-	{"login", "Save your API key", cmdLogin},
+	{"login", "Sign in (browser) or save an API key", cmdLogin},
+	{"logout", "Forget the saved API key", cmdLogout},
 	{"convert", "Convert a PDF or image file to ZPL", cmdConvert},
 	{"render", "Render ZPL to a PNG", cmdRender},
 	{"view", "Render ZPL and show it inline in the terminal", cmdView},

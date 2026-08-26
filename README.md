@@ -72,7 +72,8 @@ export STRIPYHORSE_API_KEY=sh_live_xxxxxxxxxxxx  # or set it in the environment
 
 | Command | Description |
 |---------|-------------|
-| `stripyhorse login` | Save your API key |
+| `stripyhorse login` | Sign in via browser, or save an API key |
+| `stripyhorse logout` | Forget the saved API key |
 | `stripyhorse convert <file> [-o out.zpl]` | Convert a PDF or image to ZPL |
 | `stripyhorse render [file] [-o out.png]` | Render ZPL (file or stdin) to a PNG |
 | `stripyhorse view [file]` | Render ZPL and show it inline in the terminal |
