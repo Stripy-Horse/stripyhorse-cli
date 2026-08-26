@@ -32,25 +32,4 @@ release:
   github:
     owner: Stripy-Horse
     name: stripyhorse-cli
-
-# The Homebrew formula auto-publishes to Stripy-Horse/homebrew-tap when the
-# HOMEBREW_TAP_TOKEN secret is set; without it the step is skipped, so the very
-# first release still succeeds (binaries only). Create the tap repo + token to
-# turn it on — then `brew install stripy-horse/tap/stripyhorse`.
-homebrew_casks:
-  - name: stripyhorse
-    repository:
-      owner: Stripy-Horse
-      name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
-    homepage: https://stripyhorse.io
-    description: "Command-line client for the Stripy Horse API — ZPL, tamed."
-    skip_upload: '{{ if .Env.HOMEBREW_TAP_TOKEN }}false{{ else }}true{{ end }}'
-    # Strip the quarantine attribute so an unsigned binary runs without a
-    # Gatekeeper prompt on first launch.
-    hooks:
-      post:
-        install: |
-          if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/stripyhorse"]
-          end
+  # install.sh (served from the repo) fetches these release assets.

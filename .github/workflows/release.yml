@@ -43,6 +43,3 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Set-but-empty when the secret is absent, so the Homebrew step skips
-          # cleanly instead of erroring on a missing template variable.
-          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}

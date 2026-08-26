@@ -17,24 +17,20 @@ stripyhorse convert invoice.pdf | stripyhorse print 192.168.1.50
 
 ## Install
 
-**With Go** (installs the `stripyhorse` binary into `$(go env GOPATH)/bin`):
+```sh
+curl -fsSL https://raw.githubusercontent.com/Stripy-Horse/stripyhorse-cli/main/install.sh | sh
+```
+
+Downloads the right prebuilt binary for your OS/arch and drops it in
+`/usr/local/bin` (or `~/.local/bin`). Pin a version or change the location with
+`STRIPYHORSE_VERSION` / `STRIPYHORSE_INSTALL_DIR`. Windows: grab the `.zip` from
+the [Releases](https://github.com/Stripy-Horse/stripyhorse-cli/releases) page.
+
+**With Go** instead:
 
 ```sh
 go install github.com/Stripy-Horse/stripyhorse-cli/cmd/stripyhorse@latest
-```
-
-**From source:**
-
-```sh
-git clone https://github.com/Stripy-Horse/stripyhorse-cli
-cd stripyhorse-cli
-go install ./cmd/stripyhorse
-```
-
-Make sure Go's bin dir is on your `PATH`:
-
-```sh
-export PATH="$PATH:$(go env GOPATH)/bin"
+# ensure Go's bin dir is on PATH: export PATH="$PATH:$(go env GOPATH)/bin"
 ```
 
 Verify:
@@ -42,9 +38,6 @@ Verify:
 ```sh
 stripyhorse version
 ```
-
-> Prebuilt binaries and a Homebrew tap (`brew install stripy-horse/tap/stripyhorse`)
-> land with the first tagged release.
 
 ---
 
